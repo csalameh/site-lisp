@@ -1,0 +1,9 @@
+elpa
+#*
+~*
+server
+*#
+*~
+*.elc
+org-plus-contrib
+org
