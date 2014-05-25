@@ -1,0 +1,760 @@
+#+TITLE: Csalameh's Emacs configuration
+#+OPTIONS: toc:4 h:4
+
+
+* Configuration
+
+** Setup emacs home dir
+#+begin_src emacs-lisp
+
+(setq default-directory "D:/ToolsAndUtilities/tools/emacs-24/site-lisp")
+(setq user-emacs-directory "D:/ToolsAndUtilities/tools/emacs-24/site-lisp")
+(setq diary-file "D:/ToolsAndUtilities/tools/emacs-24/site-lisp")
+
+#+end_src
+
+** Setting ENV variable
+
+#+begin_src emacs-lisp
+(setq debug-on-error t)
+(setq message-log-max t)
+(setenv "PATH"
+(concat
+"D:/ToolsAndUtilities/tools/emacs-24/site-lisp/graphviz/release/bin" ";"
+"D:/ToolsAndUtilities/tools/GnuWin32/GetGnuWin32Install/bin" ";"
+(getenv "PATH")
+)
+)
+(setenv "GRAPHVIZ_DOT"
+(concat
+"D:/ToolsAndUtilities/tools/emacs-24/site-lisp/graphviz/release/bin/dot.exe"
+)
+)
+(setenv "DICTIONARY"
+(concat
+"D:/ToolsAndUtilities/tools/emacs-24/site-lisp/ispell/english.hash"
+)
+)
+
+#+end_src
+
+** Setting up some variables
+
+#+begin_src emacs-lisp
+;; Content of .emacs
+(custom-set-variables
+;; custom-set-variables was added by Custom.
+;; If you edit it by hand, you could mess it up, so be careful.
+;; Your init file should contain only one such instance.
+;; If there is more than one, they won't work right.
+'(case-fold-search t)
+'(current-language-environment "Latin-1")
+'(default-input-method "latin-1-prefix")
+'(eshell-modify-global-environment t)
+'(eshell-prefer-lisp-variables t)
+'(menu-bar-mode t nil (menu-bar))
+;'(org-agenda-files nil)
+'(show-paren-mode t nil (paren))
+'(tool-bar-mode nil nil (tool-bar))
+'(toolbar-visible-p nil))
+(custom-set-faces
+;; custom-set-faces was added by Custom.
+;; If you edit it by hand, you could mess it up, so be careful.
+;; Your init file should contain only one such instance.
+;; If there is more than one, they won't work right.
+)
+#+end_src
+
+** Setting up the proxy
+
+#+begin_src emacs-lisp
+;; End content of .emacs
+
+;;C:\Users\<username>\AppData\Roaming\.emacs.d\init.el
+;;http://ergoemacs.org/emacs/emacs_installing_packages.html
+;;http://ergoemacs.org/emacs/emacs_package_system.html
+;;http://www.damtp.cam.ac.uk/user/sje30/emacs/ell-date.html
+;;Emacs Lisp List - Problem: I see dead people (links). http://www.damtp.cam.ac.uk/user/sje30/emacs/ell.html
+;;Emacswiki - Problem: May contain traces of nuts (malicious code). http://www.emacswiki.org/
+;;Emacsmirror - The package repository I am working on. Problem: No package manager supports it natively yet. https://github.com/emacsmirror
+
+;;setup proxy
+;;(setq url-proxy-services
+;;'(("http"     . "proxylb:3128")
+;;("no_proxy" . "^.*\\(murex\\)\\.com")))
+;; Define packages to be installed on start up.
+
+#+end_src
+
+** Setup the package installer
+
+#+begin_src emacs-lisp
+(setq package-user-dir "D:/ToolsAndUtilities/tools/emacs-24/site-lisp/elpa")
+(setq package-directory-list
+(list (file-name-as-directory package-user-dir)
+"D:/ToolsAndUtilities/tools/emacs-24/site-lisp/elpa"))
+(require 'package)
+(add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/"))
+(add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/") t)
+(add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
+(add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/"))
+(package-initialize)
+(when (not package-archive-contents) (package-refresh-contents))
+
+
+;;date-calc.el - Date calculation and parsing routines.
+;;ell.el - Browse the Emacs Lisp List.
+;;elm.el, elx.el, xpkg.el - Used to maintain the Emacsmirror.
+;;genauto.el - Helps generate autoloads for your elisp packages.
+;;inversion.el - Require specific package versions.
+;;loadhist.el, lib-requires.el, elisp-depend.el - Commands to list Emacs Lisp library dependencies.
+;;project-root.el - Define a project root and take actions based upon it.
+;;strptime.el - Partial implementation of POSIX date and time parsing.
+;;wikirel.el - Visit relevant pages on the Emacs Wik      
+(defvar my-packages '(cl-lib
+color-theme
+color-theme-solarized
+tangotango-theme
+bbdb
+evil
+ggtags
+highlight-parentheses
+magit
+markdown-mode
+;;                    org
+;;		      org-plus-contrib
+markdown-mode+
+smex
+ox-reveal
+undo-tree
+auto-complete
+auto-complete-pcmp
+ flyspell 
+yasnippet
+;groovy-mode
+)
+"A list of packages to ensure are installed at launch.")    
+(dolist (p my-packages)
+(when (not (package-installed-p p))
+(package-install p)))
+#+end_src
+
+** Setup GUI customization
+#+begin_src emacs-lisp
+
+;; specify default browser
+(setq browse-url-browser-function 'browse-url-w3)
+
+;; disable vc to prevent hooks by svn
+(setq vc-handled-backends nil)
+
+;; display scrollbar
+(scroll-bar-mode t)
+
+;; display menu
+(menu-bar-mode t)
+(tool-bar-mode -1)
+
+;; colortheme tangotango
+(require 'tangotango-theme)
+(setq ido-enable-flex-matching t) ; fuzzy matching is a must have
+(setq ido-everywhere t)
+(ido-mode t)
+(setq default-frame-alist
+'((top . 200) (left . 400)
+(width . 80) (height . 40)
+(cursor-type . box)
+(font . "Consolas-12")))
+#+end_src
+
+** Disbale killing Emacs
+
+#+begin_src emacs-lisp
+
+(defun dont-kill-emacs()
+"Disable C-x C-c binding execute kill-emacs."
+(interactive)
+(error (substitute-command-keys "To exit emacs: \\[kill-emacs]")))
+(global-set-key (kbd "C-x C-c") 'dont-kill-emacs)
+#+end_src
+
+* GTAGS
+
+#+begin_src emacs-lisp :tangle no
+#+++++ to be reviewed
+(setq gops-mxg2000-depot "D:/SRC_DEPOT/v2000.2.11.build")
+(setq gops-mxg327-depot "D:/SRC_DEPOT/v3.1.27/")
+(setq gops-mx3-depot "D:/depot/v3.1.build")
+;(setq org-remember-templates
+;      '(
+;	("Todo" ?t "* TODO %? %^g\n %i\n " "D:/Projects/org/agenda/todo.org" "Office")
+;        ("Journal" ?j "\n* %^{topic} %T \n%i%?\n" "D:/Projects/org/agenda/journal.org")
+;	))
+;(global-linum-mode 1)
+;(setq column-number-mode t)
+;(setq frame-title-format '(buffer-file-name "%f" ("%b")))
+;(setq ring-bell-function 'ignore)
+;(if (fboundp 'tool-bar-mode) (tool-bar-mode -1))
+;(if (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
+(setq vc-handled-backends nil)
+(setq ahk-syntax-directory "d:/ToolsAndUtilities/tools/AutoHotKey/Extras/Editors/Syntax")
+(add-to-list 'auto-mode-alist '("\\.ahk$" . ahk-org-mode))
+(autoload 'ahk-org-mode "ahk-org-mode")
+#+end_src
+
+* gops.el
+#+begin_src emacs-lisp
+(custom-set-variables
+'(case-fold-search t)
+'(current-language-environment "Latin-1")
+'(default-input-method "latin-1-prefix")
+'(menu-bar-mode t nil (menu-bar))
+'(show-paren-mode t nil (paren))
+'(tool-bar-mode nil nil (tool-bar))
+'(toolbar-visible-p nil))
+(fset 'yes-or-no-p 'y-or-n-p)
+(setq transient-mark-mode t)
+(setq display-time-day-and-date t)
+(setq display-time-24hr-format t)
+(display-time)
+(setq column-number-mode t)
+(setq line-number-mode t)
+(setq inhibit-startup-message t)
+(setq fill-column 130)
+;; (kill-whole-line t)
+(setq tab-width 4)
+(setq hilight-paren-expression t)
+(if (fboundp 'global-font-lock-mode)
+(global-font-lock-mode 1)
+(setq font-lock-auto-fontify t))
+(setq font-lock-mode-maximum-decoration t)
+#+end_src
+
+#+begin_src emacs-lisp  :tangle no
+(setq
+load-path
+(append
+(list
+(expand-file-name (concat exec-directory "../../site-lisp/org/lisp"))
+(expand-file-name (concat exec-directory "../../site-lisp/color-theme"))
+(expand-file-name (concat exec-directory "../../site-lisp"))
+(expand-file-name (concat exec-directory   "../../site-lisp/yasnippet"))
+) load-path))
+#+end_src
+
+#+begin_src emacs-lisp :tangle no
+;; Matching parenthesis using % as in Vi.
+(defun match-paren (arg)
+"Go to the matching parenthesis if on parenthesis otherwise insert %."
+(interactive "p")
+(cond ((looking-at "\\s\(") (forward-list 1) (backward-char 1))
+((looking-at "\\s\)") (forward-char 1) (backward-list 1))
+(t (self-insert-command (or arg 1))))) (global-set-key "%" 'match-paren)
+(defun dos-unix ()
+(interactive)
+(goto-char (point-min))
+(while (search-forward "\r" nil t) (replace-match "")))
+(defun unix-dos ()
+(interactive)
+(goto-char (point-min))
+(while (search-forward "\n" nil t) (replace-match "\r\n")))
+(defun indent-buffer ()
+(interactive)
+(save-excursion
+(indent-region (point-min) (point-max) nil))) (global-set-key [f12] 'indent-buffer)
+(defun indent-or-complete ()
+"Complete if point is at end of a word, otherwise indent line."
+(interactive)
+(if (looking-at "$")
+(hippie-expand nil))
+(indent-for-tab-command))
+(global-set-key [C-tab] 'dabbrev-expand)
+(add-to-list 'auto-mode-alist
+(cons (concat "\\." (regexp-opt '("cpp" "cc" "C" "h" "hpp" "hh" "H" "cxx" "hxx") t) "\\'") 'c++-mode))
+(add-to-list 'auto-mode-alist
+(cons (concat "\\." (regexp-opt '("xml" "xslt" "xsl" "xsd" "rng" "mxres" "html" "xhtml") t) "\\'") 'nxml-mode))
+(add-hook 'nxml-mode-hook 'turn-on-auto-fill)
+(add-to-list 'auto-mode-alist '("\\.org\\'" . org-mode))
+(require 'gtags)
+(defun gops-open-tag-mxg2000 (tag)
+(setq gtags-rootdir (expand-file-name gops-mxg2000-depot))
+(gtags-goto-tag tag "")
+(raise-frame))
+(defun gops-open-tag-mx3 (tag)
+(setq gtags-rootdir (expand-file-name gops-mx3-depot))
+(gtags-goto-tag tag "")
+(raise-frame))
+(defun gops-grep-mxg2000 (tag)
+(let ((pattern tag)
+(files "*.[ch] *.java *.mxres *.sh")
+(dirname (expand-file-name gops-mxg2000-depot)))
+(raise-frame)
+(grep-compute-defaults)
+(rgrep pattern files dirname)))
+(defun gops-grep-mx3 (tag)
+(let ((pattern tag)
+(files "*.[ch] *.java *.mxres *.sh")
+(dirname (expand-file-3name gops-mx3-depot)))
+(raise-frame)
+(grep-compute-defaults)
+(rgrep pattern files dirname)))
+#+end_src
+
+#+begin_src emacs-lisp  :tangle no
+(require 'color-theme)
+(color-theme-initialize)
+;; default color-theme
+;; (color-theme-sitaramv-nt)
+;; org-mode
+;; for byte-compilation use emacs -batch -f batch-byte-compile *.el in eshell
+(require 'org-install)
+(require 'org-mouse)
+(setq org-return-follows-link t)
+(define-key global-map "\C-cl" 'org-store-link)
+(define-key global-map "\C-ca" 'org-agenda)
+(setq org-agenda-file-regexp "\\.org\\'")
+#+end_src
+
+* Settings
+
+#+begin_src emacs-lisp :tangle no
+;; Settings
+(setq org-cycle-separator-lines 1) ;Display blank lines, like outline-blank-lines
+(setq org-special-ctrl-a/e t) ;C-a goes to beginning of heading, then line
+(setq org-tags-column 72)              ;tags right aligned
+(setq org-agenda-align-tags-to-column 120);try to right align tags in agenda
+(setq org-agenda-start-on-weekday nil)  ;start on current day
+(setq org-hide-leading-stars t)         ;only show one *
+(setq org-log-done t)                   ;add CLOSED when complete item
+(setq org-startup-folded 'showall)      ;Best default for small files with tables
+(setq org-highest-priority 49)
+(setq org-lowest-priority 57)
+(setq org-default-priority 53)
+(setq org-export-with-sub-superscripts nil)
+(setq org-export-html-style "<link rel=\"stylesheet\" type=\"text/css\" href=\"http://mxdoc:8080/mxdoc/documents/Operate/operate_it/06740.00000/objects/orgstyle.css\"/>")
+(setq org-export-with-section-numbers t)
+(setq org-export-headline-levels 4)
+(setq org-export-with-toc t)
+(setq org-export-author-info nil)
+(setq org-export-creator-info nil)
+(setq org-export-time-stamp-file nil)
+(setq org-export-with-timestamps nil)
+;; Fast todo selection allows changing from any task todo state to any other state
+;; directly by selecting the appropriate key from the fast todo selection key menu. 
+(setq org-use-fast-todo-selection t)
+;; Change task state to STARTED when clocking in
+(setq org-clock-in-switch-to-state "STARTED")
+; clendar week stats with monday
+(setq calendar-week-start-day 1)
+;; when it's done, it's done
+(setq org-agenda-skip-deadline-if-done t)
+(setq org-agenda-skip-scheduled-if-done t)
+(setq org-agenda-skip-timestamp-if-done t) 
+;; I often restart my emacs *and* I often forget to clock out
+(setq org-clock-in-resume t)
+;; and clean up after me a little
+(setq org-clock-out-remove-zero-time-clocks t)
+;; did I say I restart my emacs?
+'(setq org-clock-persist t)
+; log state changes into a drawer (introduced in Orgmode 6.23)
+(setq org-log-into-drawer "LOGBOOK")
+; log closing TODO items
+(setq org-log-done 'time)
+#+end_src
+
+#+begin_src emcas-lisp :tangle no
+;; Custom keywords
+(setq org-todo-keywords
+'((sequence "TODO(t)" "STARTED(s!)" "NEXT(n)" "|" "DONE(d!/!)" "CANCELLED(c@/!)")
+(sequence "WAITING(w@/!)" "|")
+))
+(setq org-tag-alist '((:startgroup . nil)
+("@OFFICE" . ?O)
+("@HOME" . ?H)
+("@PHONE" . ?P)
+(:endgroup . nil)
+(:startgroup . nil)
+("URGENT" . ?U)
+(:endgroup . nil)
+("AA" . ?a)
+("JA" . ?b)
+("GS" . ?c)
+("AB" . ?d)
+("MZ" . ?e)
+("JS" . ?f)
+("EK" . ?g)
+("GD" . ?h)
+("SC" . ?i)
+("GG" . ?j)
+("CA" . ?k)
+("EA" . ?l)
+("NB" . ?m)
+("WM" . ?n)
+))
+(setq org-columns-default-format
+"%40ITEM(Details) %14CATEGORY(Catg) %9TODO(To Do) %15SCHEDULED(Sched) %15DEADLINE(Deadline) %20TAGS(Context) %5Effort(Time){:} %6CLOCKSUM(Spent){Total}")
+(setq org-global-properties (quote (
+("Effort_ALL" . "0 0:10 0:30 1:00 2:00 3:00 4:00 5:00 6:00 8:00 10:00 12:00")
+("CATEGORY_ALL" . "ProdSupport ConsultSupport OtherSupport QaSupport Support Projects Absence Other"))))
+
+(setq org-agenda-time-grid 
+'((weekly require-timed) "--------------------"
+(700 800 1000 1200 1400 1600 1800 2000 2200 2400)))
+
+(require 'org-publish)
+(setq org-publish-project-alist
+'(("org"
+:components ("org-docs" "org-static"))
+("org-docs"
+:base-directory "."
+:base-extension "org"
+:publishing-directory ".."
+:recursive t		 
+:publishing-function org-publish-org-to-html
+:headline-levels 4             ; Just the default for this project.
+:auto-preamble t
+)
+("org-static"
+:base-directory "."
+:base-extension "png\\|jpg\\|gif\\|sh\\|xml\\|zip\\|pdf"
+:publishing-directory "../../objects/"
+:recursive t
+:publishing-function org-publish-attachment
+)
+))
+
+(defvar my/org-lisp-directory (expand-file-name (concat exec-directory "../../site-lisp/org/lisp"))
+"Directory where your org-mode files live.")
+
+(defvar my/org-compile-sources t
+"If `nil', never compile org-sources. `my/compile-org' will only create
+the autoloads file `org-install.el' then. If `t', compile the sources, too.")
+
+;; Customize:
+(setq my/org-lisp-directory (expand-file-name (concat exec-directory "../../site-lisp/org/lisp")))
+
+;; Customize:
+(setq  my/org-compile-sources t)
+
+(defun my/compile-org(&optional directory)
+"Compile all *.el files that come with org-mode."
+(interactive)
+(setq directory (concat
+(file-truename
+(or directory my/org-lisp-directory)) "/"))
+
+(add-to-list 'load-path directory)
+
+(let ((list-of-org-files (file-expand-wildcards (concat directory "*.el"))))
+
+;; create the org-install file
+(require 'autoload)
+(setq esf/org-install-file (concat directory "org-install.el"))
+(find-file esf/org-install-file)
+(erase-buffer)
+(mapc (lambda (x)
+(generate-file-autoloads x))
+list-of-org-files)
+(insert "\n(provide (quote org-install))\n")
+(save-buffer)
+(kill-buffer)
+(byte-compile-file esf/org-install-file t)
+
+(dolist (f list-of-org-files)
+(if (file-exists-p (concat f "c")) ; delete compiled files
+(delete-file (concat f "c")))
+(if my/org-compile-sources     ; Compile, if `my/org-compile-sources' is t
+(byte-compile-file f)))))
+#+end_src
+
+#+begin_src emcas-lisp 
+;; gtags mode enabled (for mouse gesture proper handling)
+(setq c-mode-hook
+'(lambda () (gtags-mode 1)))
+(setq c++-mode-hook
+'(lambda () (gtags-mode 1)))
+(setq java-mode-hook
+'(lambda () (gtags-mode 1)))
+(setq gtags-select-mode-hook
+'(lambda ()
+(setq hl-line-face 'underline)
+(hl-line-mode 1)))
+
+(fset 'xml-mode 'nxml-mode)
+(defun nxml-pretty-print-region (begin end)
+"Pretty format XML markup in region. You need to have nxml-mode
+http://www.emacswiki.org/cgi-bin/wiki/NxmlMode installed to do
+this.  The function inserts linebreaks to separate tags that have
+nothing but whitespace between them.  It then indents the markup
+by using nxml's indentation rules."
+(interactive "r")
+(save-excursion
+(nxml-mode)
+(goto-char begin)
+(while (search-forward-regexp "\>[ \\t]*\<" nil t) 
+(backward-char) (insert "\n"))
+(indent-region begin end))
+(message "Ah, much better!"))
+(setq htmlize-output-type "css")
+(setq org-export-htmlize-output-type 'css)
+(ido-mode t)
+(setq ido-enable-flex-matching t) ; fuzzy matching is a must have
+(setq org-completion-use-ido t) ; enable ido for org-mode too 
+(org-remember-insinuate)
+(add-hook 'ido-setup-hook 
+(lambda () 
+(define-key ido-completion-map [tab] 'ido-complete)))
+;; The following adds an extra keybinding to interactive search (C-s) that runs occur on the current search string/regexp,
+;; immediately showing all hits in the entire buffer.
+(define-key isearch-mode-map (kbd "C-o")
+(lambda ()
+(interactive)
+(let ((case-fold-search isearch-case-fold-search))
+(occur (if isearch-regexp isearch-string
+(regexp-quote isearch-string))))))
+(global-set-key (kbd "C-x C-b") 'ibuffer)
+
+(defadvice remember-finalize (after delete-remember-frame activate)
+"Advise remember-finalize to close the frame if it is the remember frame"
+(if (equal "remember" (frame-parameter nil 'name))
+(delete-frame)))
+
+(defadvice remember-destroy (after delete-remember-frame activate)
+"Advise remember-destroy to close the frame if it is the rememeber frame"
+(if (equal "remember" (frame-parameter nil 'name))
+(delete-frame)))
+
+;; make the frame contain a single window. by default org-remember
+;; splits the window.
+(add-hook 'remember-mode-hook
+'delete-other-windows)
+
+(defun make-remember-frame ()
+"Create a new frame and run org-remember."
+(interactive)
+(make-frame '((name . "remember") (width . 80) (height . 20)))
+(select-frame-by-name "remember")
+(org-remember))
+
+(defun gops-org-open-ticket (ticketid)
+(let ((org-link-frame-setup
+'((vm . vm-visit-folder)
+(gnus . gnus)
+(file . find-file))))
+(raise-frame)
+(org-open-link-from-string (concat "file://" gops-org-actions-location "/" ticketid ".org"))))
+
+(defun gops-org-open-from-imfo (ticketid)
+(let ((org-link-frame-setup
+'((vm . vm-visit-folder)
+(gnus . gnus)
+(file . find-file))))
+(raise-frame)
+(org-open-link-from-string (concat "file://" ticketid))))
+
+(defun gops-org-open-transfer-at-location (ticketid)
+(let ((org-link-frame-setup
+'((vm . vm-visit-folder)
+(gnus . gnus)
+(file . find-file))))
+(raise-frame)
+(org-open-link-from-string (concat "file://" gops-org-actions-location "/transfer.org::*" ticketid))))
+
+(defun make-diff-frame (file-A file-B)
+"Create a new frame and run diff."
+(interactive)
+(make-frame '((name . "differences") (width . 160) (height . 60)))
+(select-frame-by-name "differences")
+(raise-frame)
+(ediff-files (expand-file-name file-A) (expand-file-name file-B)))
+
+;; ediff customization
+(setq ediff-window-setup-function 'ediff-setup-windows-plain)
+(setq ediff-split-window-function 'split-window-horizontally)
+#+end_src0
+
+#+begin_src emcas-lisp :tangle no
+;; yasnippets
+(require 'yasnippet) ;; not yasnippet-bundle
+(yas/initialize)
+(yas/load-directory (expand-file-name (concat exec-directory "../../site-lisp/yasnippet/snippets")))
+(add-hook 'org-mode-hook
+(lambda ()
+;; yasnippet
+(make-variable-buffer-local 'yas/trigger-key)
+(setq yas/trigger-key [tab])
+(define-key yas/keymap [tab] 'yas/next-field-group)))
+(defun eshell/op (FILE)
+"Invoke (w32-shell-execute \"Open\" FILE) and substitute slashes for backslashes"
+(w32-shell-execute "Open" (substitute ?\\ ?/ (expand-file-name FILE)))) 
+
+(setq org-export-html-style "<link rel=\"stylesheet\" type=\"text/css\" href=\"http://mxdoc:8080/mxdoc/documents/Operate/operate_it/06740.00000/objects/orgstyle.css\"/>")
+#+end_src
+
+** Transparency
+#+begin_src emcas-lisp
+;; fancy transparency
+(defun djcb-opacity-modify (&optional dec)
+"modify the transparency of the emacs frame; if DEC is t,
+decrease the transparency, otherwise increase it in 10%-steps"
+(let* ((alpha-or-nil (frame-parameter nil 'alpha)) ; nil before setting
+(oldalpha (if alpha-or-nil alpha-or-nil 100))
+(newalpha (if dec (- oldalpha 5) (+ oldalpha 5))))
+(when (and (>= newalpha frame-alpha-lower-limit) (<= newalpha 100))
+(modify-frame-parameters nil (list (cons 'alpha newalpha))))))
+
+;; C-8 will increase opacity (== decrease transparency)
+;; C-9 will decrease opacity (== increase transparency
+;; C-0 will returns the state to normal
+(global-set-key (kbd "C-8") '(lambda()(interactive)(djcb-opacity-modify)))
+(global-set-key (kbd "C-9") '(lambda()(interactive)(djcb-opacity-modify t)))
+(global-set-key (kbd "C-0") '(lambda()(interactive)(modify-frame-parameters nil `((alpha . 100)))))
+(load (concat exec-directory "../../site-lisp/sandbox.el"))
+#+end_src
+
+** Auto byte compilation on save
+
+#+begin_src emcas-lisp :tangle no
+(defun auto-byte-recompile ()
+"If the current buffer is in emacs-lisp-mode and there already exists an `.elc'
+file corresponding to the current buffer file, then recompile the file."
+(interactive)
+(when (and (eq major-mode 'emacs-lisp-mode)
+(file-exists-p (byte-compile-dest-file buffer-file-name)))
+(byte-compile-file buffer-file-name)))
+(add-hook 'after-save-hook 'auto-byte-recompile)
+#+end_src
+
+** Unset key bindings
+
+#+begin_src emcas-lisp :tangle no
+http://ergoemacs.org/emacs/keyboard_shortcuts.html
+FIX http://lists.gnu.org/archive/html/emacs-orgmode/2010-04/msg00355.html F5
+
+;; unset a key
+(global-unset-key (kbd "C-b"))
+;; or
+(global-set-key (kbd "C-b") nil)
+#+end_src
+
+* Orgmode configuration
+
+Moved to org-mode.el  
+
+
+#+begin_src emacs-lisp 
+
+;; ==============================================
+;;;Loading orgmode
+;;; Org Mode
+;(add-to-list 'load-path (expand-file-name "D:/ToolsAndUtilities/tools/emacs-24/site-lisp/org-mode/lisp"))
+(add-to-list 'load-path "D:/ToolsAndUtilities/tools/emacs-24/site-lisp/org-plus-contrib" t)
+(add-to-list 'auto-mode-alist '("\\.\\(org\\|org_archive\\|txt\\)$" . org-mode))
+(require 'org)
+
+(let ((base "D:/ToolsAndUtilities/tools/emacs-24/site-lisp/org"))
+
+(add-to-list 'load-path base)
+(dolist (f (directory-files base))
+(let ((name (concat base "/" f)))
+(when (and (file-directory-p name) 
+(not (equal f ".."))
+(not (equal f ".")))
+(add-to-list 'load-path name)))))
+
+#+end_src
+
+*** Configuration of org-oxreveal
+
+#+begin_src emacs-lisp  :tangle no
+;; Loading or reveal for presentation generation	   
+(load "ox-reveal.el")
+(live-load-config-file "ox-reveal.el")
+(setq org-reveal-root "file:///D:/ToolsAndUtilities/tools/emacs-24/javascript/reveal.js")
+(setq org-reveal-root "http://cypher:8090/svn/PAR/PFR/0000030/GOPS/Operate-IT/InternalOngoingProjects/COS_IOS_IT/reveal.js")
+;; http://cdn.jsdelivr.net/reveal.js/2.5.0/
+;; ==============================================
+
+
+#+end_src
+
+*** Ediff config   
+
+#+begin_src emacs-lisp
+;; ediff customization
+(setq ediff-window-setup-function 'ediff-setup-windows-plain)
+(setq ediff-split-window-function 'split-window-horizontally)
+
+;; yasnippets
+;;(require 'yasnippet) ;; not yasnippet-bundle
+;;(yas/initialize)
+;;(yas/load-directory (expand-file-name (concat exec-directory "d:/ToolsAndUtilities/tools/emacs-24/site-lisp/yasnippet/snippets")))
+;(defun yas/org-very-safe-expand ()
+; (let ((yas/fallback-behavior 'return-nil)) (yas/expand)))
+
+;;(add-hook 'org-mode-hook
+;;         (lambda ()
+;;          ;; yasnippet (using the new org-cycle hooks)
+;;         (make-variable-buffer-local 'yas/trigger-key)
+;;        (setq yas/trigger-key [tab])
+;;       (add-to-list 'org-tab-first-hook 'yas/org-very-safe-expand)
+;;      (define-key yas/keymap [tab] 'yas/next-field)))
+
+(defun eshell/op (FILE)
+"Invoke (w32-shell-execute \"Open\" FILE) and substitute slashes for backslashes"
+(w32-shell-execute "Open" (substitute ?\\ ?/ (expand-file-name FILE)))) 
+
+;; fancy transparency
+(defun djcb-opacity-modify (&optional dec)
+"modify the transparency of the emacs frame; if DEC is t,
+decrease the transparency, otherwise increase it in 10%-steps"
+(let* ((alpha-or-nil (frame-parameter nil 'alpha)) ; nil before setting
+(oldalpha (if alpha-or-nil alpha-or-nil 100))
+(newalpha (if dec (- oldalpha 5) (+ oldalpha 5))))
+(when (and (>= newalpha frame-alpha-lower-limit) (<= newalpha 100))
+(modify-frame-parameters nil (list (cons 'alpha newalpha))))))
+
+;; C-8 will increase opacity (== decrease transparency)
+;; C-9 will decrease opacity (== increase transparency
+;; C-0 will returns the state to normal
+(global-set-key (kbd "C-8") '(lambda()(interactive)(djcb-opacity-modify)))
+(global-set-key (kbd "C-9") '(lambda()(interactive)(djcb-opacity-modify t)))
+(global-set-key (kbd "C-0") '(lambda()(interactive)(modify-frame-parameters nil `((alpha . 100)))))
+;;(load (concat exec-directory "sandbox.el"))
+
+#+end_src
+
+#+begin_src emacs-lisp  :tangle no
+
+;; (setq org-agenda-files (list "D:/depot/operate-shifts/Calendar" "D:/depot/operate-shifts/Actions"))
+(setq
+default-frame-alist 
+(append
+(list
+'(height . 50) ;; default height
+'(width . 150) ;; default width
+'(font . "Lucida Console-9") ;; font name and size
+'(alpha . 100) ;; transparency, if 100 fully opaque, < 100 transparent
+)
+default-frame-alist))
+;; line display
+;;(require 'color-theme-tango)
+;;(color-theme-tango)
+;;(require 'zenburn)
+;;(color-theme-zenburn)
+(setq org-agenda-files (list "D:/depot/operate-shifts/Calendar"))
+(setq org-archive-location "d:/depot/operate-shifts/org_archive/%s::")
+(setq gops-org-actions-location "D:/depot/operate-shifts/Actions")
+#+end_src
+
+*** Load Org-mode config
+#+begin_src emacs-lisp
+(setq org-user-agenda-files (quote ("D:/ToolsAndUtilities/tools/emacs-24/site-lisp/org"
+                               "D:/ToolsAndUtilities/tools/emacs-24/site-lisp/org/clients"
+                               "D:/ToolsAndUtilities/tools/emacs-24/site-lisp/org/agenda"
+                                 )))
+
+(org-babel-load-file (expand-file-name "D:/ToolsAndUtilities/tools/emacs-24/site-lisp/org-mode.org"))
+
+
+#+end_src   
